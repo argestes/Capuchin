@@ -25,8 +25,7 @@ object ApplicationController extends Controller {
         val uuid = Guid()
         val app = ApplicationModel(uuid, name)
         Applications.insert(app)
-        val json = Json.toJson(app)
-        Ok(json)
+        Ok(Json.toJson(app))
       }.getOrElse {
         BadRequest("Missing parameter [name]")
       }
@@ -42,9 +41,12 @@ object ApplicationController extends Controller {
         Json.fromJson[ApplicationModel](json).map { newApp =>
           if (app.id == newApp.id) {
             appQuery.update(newApp)
+            Ok(Json.toJson(newApp))
           } else {
             BadRequest("ID mismatch")
           }
+        }.getOrElse {
+          BadRequest("Application object expected")
         }
       }.getOrElse {
         BadRequest("Expecting Json data")
@@ -52,7 +54,6 @@ object ApplicationController extends Controller {
     }.getOrElse {
       NotFound("Application not found")
     }
-    ???
   }
 
   def delete(id: Guid) = DBAction { implicit requestWithSession =>
