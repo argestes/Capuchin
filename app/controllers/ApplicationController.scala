@@ -19,13 +19,15 @@ object ApplicationController extends Controller {
     Ok(Json.toJson(results))
   }
 
+  // TODO: Support partial update to an entity via POST?
+
   def post = DBAction { implicit requestWithSession =>
     requestWithSession.request.body.asJson.map { json =>
       (json \ "name").asOpt[String].map { name =>
         val uuid = Guid()
         val app = ApplicationModel(uuid, name)
         Applications.insert(app)
-        Ok(Json.toJson(app))
+        Created(Json.toJson(app)).withHeaders(LOCATION -> routes.ApplicationController.put(uuid).url)
       }.getOrElse {
         BadRequest("Missing parameter [name]")
       }
