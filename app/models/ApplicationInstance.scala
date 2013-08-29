@@ -19,7 +19,7 @@ object ApplicationInstances extends Table[ApplicationInstance]("ApplicationInsta
 
   def application = foreignKey("FK_ApplicationInstances_Applications", applicationId, Applications)(_.id)
 
-  def applicationVersion = foreignKey("FK_ApplicaitonInstances_ApplicationVersions", applicationVersionId, ApplicationVersions)(_.id)
+  def applicationVersion = foreignKey("FK_ApplicationInstances_ApplicationVersions", applicationVersionId, ApplicationVersions)(_.id)
 
   def host = foreignKey("FK_ApplicationInstances_Hosts", hostId, Hosts)(_.id)
 }
