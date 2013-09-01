@@ -6,8 +6,8 @@
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Controllers
-GET     /application                controllers.ApplicationController.getAll()
+GET     /application/all            controllers.ApplicationController.getAll()
 GET     /application/:id            controllers.ApplicationController.get(id: Guid)
+POST    /application                controllers.ApplicationController.post()
 PUT     /application/:id            controllers.ApplicationController.put(id: Guid)
 DELETE  /application/:id            controllers.ApplicationController.delete(id: Guid)
-POST    /application                controllers.ApplicationController.post()

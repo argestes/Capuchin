@@ -1,6 +1,6 @@
 package controllers
 
-import play.api.mvc.Controller
+import play.api.mvc.{Action, Controller}
 import models.{Application => ApplicationModel, Guid, Applications}
 import play.api.libs.json.Json
 import play.api.db.slick.Config.driver.simple._
@@ -9,38 +9,40 @@ import Applications.jsonFormat
 import play.api.Play.current
 
 object ApplicationController extends Controller {
-  def get(id: Guid) = DBAction { implicit requestWithSession =>
-    val results = Query(Applications).filter(_.id === id).list
-    Ok(Json.toJson(results))
+  def get(id: Guid) = Action {
+    DB.withSession { implicit session:slick.session.Session =>
+      val result = Query(Applications).filter(_.id === id.bind).first()
+      Ok(Json.toJson(result))
+    }
   }
 
-  def getAll = DBAction {implicit requestWithSession =>
-    val results = Query(Applications).list
-    Ok(Json.toJson(results))
+  def getAll = Action {
+    DB.withSession { implicit session: slick.session.Session =>
+      val results = Query(Applications).list
+      Ok(Json.toJson(results))
+    }
   }
 
   // TODO: Support partial update to an entity via POST?
 
-  def post = DBAction { implicit requestWithSession =>
-    requestWithSession.request.body.asJson.map { json =>
-      (json \ "name").asOpt[String].map { name =>
-        val uuid = Guid()
+  def post = Action(parse.json) { implicit request =>
+    (request.body \ "name").asOpt[String].map { name =>
+      val uuid = Guid()
+      DB.withSession {implicit session: slick.session.Session =>
         val app = ApplicationModel(uuid, name)
         Applications.insert(app)
         Created(Json.toJson(app)).withHeaders(LOCATION -> routes.ApplicationController.put(uuid).url)
-      }.getOrElse {
-        BadRequest("Missing parameter [name]")
       }
     }.getOrElse {
-      BadRequest("Expecting Json data")
+      BadRequest("Missing parameter [name]")
     }
   }
 
-  def put(id: Guid) = DBAction { implicit requestWithSession =>
-    val appQuery = Query(Applications).filter(_.id === id)
-    appQuery.firstOption.map { app =>
-      requestWithSession.request.body.asJson.map { json =>
-        Json.fromJson[ApplicationModel](json).map { newApp =>
+  def put(id: Guid) = Action(parse.json) { implicit request =>
+    DB.withSession { implicit session: slick.session.Session =>
+      val appQuery = Query(Applications).filter(_.id === id)
+      appQuery.firstOption.map { app =>
+        Json.fromJson[ApplicationModel](request.body).map { newApp =>
           if (app.id == newApp.id) {
             appQuery.update(newApp)
             Ok(Json.toJson(newApp))
@@ -51,10 +53,8 @@ object ApplicationController extends Controller {
           BadRequest("Application object expected")
         }
       }.getOrElse {
-        BadRequest("Expecting Json data")
+          NotFound("Application not found")
       }
-    }.getOrElse {
-      NotFound("Application not found")
     }
   }
 
