@@ -40,7 +40,7 @@ object ApplicationController extends Controller {
 
   def put(id: Guid) = Action(parse.json) { implicit request =>
     DB.withSession { implicit session: slick.session.Session =>
-      val appQuery = Query(Applications).filter(_.id === id)
+      val appQuery = Query(Applications).filter(_.id === id.bind)
       appQuery.firstOption.map { app =>
         Json.fromJson[ApplicationModel](request.body).map { newApp =>
           if (app.id == newApp.id) {

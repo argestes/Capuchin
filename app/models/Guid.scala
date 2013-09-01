@@ -24,7 +24,7 @@ object Guid {
 
   // JSON Formatter for Guid
   implicit object GuidFormat extends Format[Guid] {
-    def reads(json: JsValue): JsResult[Guid] = JsSuccess(Guid(UUID.fromString((json \ "id").as[String])))
+    def reads(json: JsValue): JsResult[Guid] = JsSuccess(Guid(UUID.fromString(json.as[String])))
 
     def writes(o: Guid): JsValue = Json.toJson(o.toString)
   }
