@@ -58,9 +58,11 @@ object ApplicationController extends Controller {
     }
   }
 
-  def delete(id: Guid) = DBAction { implicit requestWithSession =>
-    // TODO: Check if object exists?
-    Query(Applications).filter(_.id === id).delete
-    Ok(Json.toJson("Deleted"))
+  def delete(id: Guid) = Action {
+    DB.withSession {implicit session: slick.session.Session =>
+      // TODO: Check if object exists?
+      Query(Applications).filter(_.id === id.bind).delete
+      NoContent
+    }
   }
 }
