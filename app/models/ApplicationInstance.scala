@@ -1,11 +1,11 @@
 package models
 
-import scala.slick.driver.H2Driver.simple._
+import play.api.db.slick.Config.driver.simple._
 
-case class ApplicationInstance(id: Guid, applicationId: Guid, applicationVersionId: Guid, hostId: Guid, status: Int)
+case class ApplicationInstance(id: Option[Guid], applicationId: Guid, applicationVersionId: Guid, hostId: Guid, status: Int)
 
 object ApplicationInstances extends Table[ApplicationInstance]("ApplicationInstances") {
-  def id = column[Guid]("id", O.PrimaryKey)
+  def id = column[Option[Guid]]("id", O.PrimaryKey)
 
   def applicationId = column[Guid]("applicationId")
 
@@ -17,7 +17,7 @@ object ApplicationInstances extends Table[ApplicationInstance]("ApplicationInsta
 
   def * = id ~ applicationId ~ applicationVersionId ~ hostId ~ status <>(ApplicationInstance, ApplicationInstance.unapply _)
 
-  def application = foreignKey("FK_ApplicationInstances_Applications", applicationId, Applications)(_.id)
+  def application = foreignKey("FK_ApplicationInstances_Applications", applicationId, Applications)(_.id.get)
 
   def applicationVersion = foreignKey("FK_ApplicationInstances_ApplicationVersions", applicationVersionId, ApplicationVersions)(_.id)
 

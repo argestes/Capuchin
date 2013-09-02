@@ -1,6 +1,6 @@
 package models
 
-import scala.slick.driver.H2Driver.simple._
+import play.api.db.slick.Config.driver.simple._
 
 case class Host(id: Guid, hostname: String)
 
