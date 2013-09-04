@@ -1,15 +1,27 @@
 package controllers
 
-import play.api.mvc.{Action, Controller}
-import models.{BaseTable, BaseModel, Guid}
-import play.api.libs.json.Json
+import play.api.mvc.{EssentialAction, Action, Controller}
+import play.api.libs.json.{Format, Json}
 import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick._
 import play.api.Play.current
+import helpers.{BaseTable, BaseModel}
+import models.Guid
 
-trait CrudController[TModel <: BaseModel, TTable <: BaseTable[TModel]] extends Controller {
+trait CrudController[Id] extends Controller {
+  def get(id: Id): EssentialAction
+  def getAll: EssentialAction
+  def post: EssentialAction
+  def put(id: Id): EssentialAction
+  def delete(id: Id): EssentialAction
+}
+
+trait BaseController[TModel <: BaseModel, TTable <: BaseTable[TModel]]
+  extends CrudController[Guid]
+{
+
   implicit val table: TTable
-  implicit val jsonFormat = table.jsonFormat
+  implicit val jsonFormat: Format[TModel]
 
   def get(id: Guid) = Action {
     DB.withSession { implicit session:slick.session.Session =>
@@ -29,10 +41,10 @@ trait CrudController[TModel <: BaseModel, TTable <: BaseTable[TModel]] extends C
 
   def post = Action(parse.json) { implicit request =>
     Json.fromJson[TModel](request.body).map { reqObj =>
-      val uuid = Guid()
       DB.withSession {implicit session: slick.session.Session =>
         table.insert(reqObj)
-        Created(Json.toJson(reqObj)).withHeaders(LOCATION -> routes.ApplicationController.put(uuid).url)
+        // FIXME: Location header
+        Created(Json.toJson(reqObj)).withHeaders(LOCATION -> "FIXME")
       }
     }.getOrElse {
       BadRequest("Missing parameter [name]")
@@ -60,7 +72,7 @@ trait CrudController[TModel <: BaseModel, TTable <: BaseTable[TModel]] extends C
   }
 
   def delete(id: Guid) = Action {
-    DB.withSession {implicit session: slick.session.Session =>
+    DB.withSession { implicit session: slick.session.Session =>
       // TODO: Check if object exists?
       Query(table).filter(_.id === id.bind).delete
       NoContent

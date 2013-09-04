@@ -1,12 +1,17 @@
 package models
 
-import play.api.db.slick.Config.driver.simple._
+import helpers.{BaseTable, BaseModel}
+import play.api.libs.json.{Format, Json}
 
-case class ApplicationInstance(id: Option[Guid], applicationId: Guid, applicationVersionId: Guid, hostId: Guid, status: Int)
+case class ApplicationInstance(
+  id: Guid = Guid(),
+  applicationId: Guid,
+  applicationVersionId: Guid,
+  hostId: Guid,
+  status: Int
+) extends BaseModel
 
-object ApplicationInstances extends Table[ApplicationInstance]("ApplicationInstances") {
-  def id = column[Option[Guid]]("id", O.PrimaryKey)
-
+object ApplicationInstances extends BaseTable[ApplicationInstance]("ApplicationInstances") {
   def applicationId = column[Guid]("applicationId")
 
   def applicationVersionId = column[Guid]("applicationVersionId")
@@ -17,9 +22,11 @@ object ApplicationInstances extends Table[ApplicationInstance]("ApplicationInsta
 
   def * = id ~ applicationId ~ applicationVersionId ~ hostId ~ status <>(ApplicationInstance, ApplicationInstance.unapply _)
 
-  def application = foreignKey("FK_ApplicationInstances_Applications", applicationId, Applications)(_.id.get)
+  def application = foreignKey("FK_ApplicationInstances_Applications", applicationId, Applications)(_.id)
 
   def applicationVersion = foreignKey("FK_ApplicationInstances_ApplicationVersions", applicationVersionId, ApplicationVersions)(_.id)
 
   def host = foreignKey("FK_ApplicationInstances_Hosts", hostId, Hosts)(_.id)
+
+  implicit val jsonFormat: Format[ApplicationInstance] = Json.format[ApplicationInstance]
 }

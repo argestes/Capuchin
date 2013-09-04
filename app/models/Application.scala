@@ -1,15 +1,17 @@
 package models
 
-import play.api.db.slick.Config.driver.simple._
-import play.api.libs.json.Json
+import helpers.{BaseTable, BaseModel}
+import play.api.libs.json.{Format, Json}
 
-case class Application(id: Option[Guid], name: String) extends BaseModel
+case class Application(id: Guid = Guid(), name: String, enabled: Boolean) extends BaseModel
 
 object Applications extends BaseTable[Application]("Applications") {
   def name = column[String]("name")
 
-  def * = id ~ name <>(Application, Application.unapply _)
+  def enabled = column[Boolean]("enabled", O.Default(true))
 
-  implicit val jsonFormat = Json.format[Application]
+  def * = id ~ name ~ enabled <>(Application, Application.unapply _)
+
+  implicit val jsonFormat: Format[Application] = Json.format[Application]
 }
 

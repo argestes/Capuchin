@@ -1,13 +1,14 @@
 package models
 
-import play.api.db.slick.Config.driver.simple._
+import helpers.{BaseTable, BaseModel}
+import play.api.libs.json.{Format, Json}
 
-case class Host(id: Guid, hostname: String)
+case class Host(id: Guid = Guid(), hostname: String) extends BaseModel
 
-object Hosts extends Table[Host]("Hosts") {
-  def id = column[Guid]("id", O.PrimaryKey)
-
+object Hosts extends BaseTable[Host]("Hosts") {
   def hostname = column[String]("hostname")
 
   def * = id ~ hostname <>(Host, Host.unapply _)
+
+  implicit val jsonFormat: Format[Host] = Json.format[Host]
 }
