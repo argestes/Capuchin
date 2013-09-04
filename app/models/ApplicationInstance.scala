@@ -1,15 +1,14 @@
 package models
 
-import helpers.{BaseTable, BaseModel}
+import helpers.{BaseModel, BaseTable}
 import play.api.libs.json.{Format, Json}
 
 case class ApplicationInstance(
-  id: Guid = Guid(),
+  id: Option[Guid],
   applicationId: Guid,
   applicationVersionId: Guid,
   hostId: Guid,
-  status: Int
-) extends BaseModel
+  status: Int) extends BaseModel
 
 object ApplicationInstances extends BaseTable[ApplicationInstance]("ApplicationInstances") {
   def applicationId = column[Guid]("applicationId")
@@ -20,7 +19,7 @@ object ApplicationInstances extends BaseTable[ApplicationInstance]("ApplicationI
 
   def status = column[Int]("status")
 
-  def * = id ~ applicationId ~ applicationVersionId ~ hostId ~ status <>(ApplicationInstance, ApplicationInstance.unapply _)
+  def * = id.? ~ applicationId ~ applicationVersionId ~ hostId ~ status <>(ApplicationInstance, ApplicationInstance.unapply _)
 
   def application = foreignKey("FK_ApplicationInstances_Applications", applicationId, Applications)(_.id)
 
@@ -29,4 +28,6 @@ object ApplicationInstances extends BaseTable[ApplicationInstance]("ApplicationI
   def host = foreignKey("FK_ApplicationInstances_Hosts", hostId, Hosts)(_.id)
 
   implicit val jsonFormat: Format[ApplicationInstance] = Json.format[ApplicationInstance]
+
+  def prepareModel(m: ApplicationInstance) = m.copy(id = Some(Guid()))
 }

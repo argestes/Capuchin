@@ -5,7 +5,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick._
 import play.api.Play.current
-import helpers.{BaseTable, BaseModel}
+import helpers.{BaseModel, BaseTable}
 import models.Guid
 
 trait CrudController[Id] extends Controller {
@@ -42,12 +42,13 @@ trait BaseController[TModel <: BaseModel, TTable <: BaseTable[TModel]]
   def post = Action(parse.json) { implicit request =>
     Json.fromJson[TModel](request.body).map { reqObj =>
       DB.withSession {implicit session: slick.session.Session =>
-        table.insert(reqObj)
+        val objToInsert = table.prepareModel(reqObj)
+        table.insert(objToInsert)
         // FIXME: Location header
-        Created(Json.toJson(reqObj)).withHeaders(LOCATION -> "FIXME")
+        Created(Json.toJson(objToInsert)).withHeaders(LOCATION -> "FIXME")
       }
     }.getOrElse {
-      BadRequest("Missing parameter [name]")
+      BadRequest("Can't map request to an object")
     }
   }
 
