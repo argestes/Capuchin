@@ -1,7 +1,28 @@
-@(message: String)
+@(title: String)
 
-@main("Welcome to Play") {
+<html >
+    <head>
+        <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")"></script>
 
-    @play20.welcome(message)
+        <script src="@routes.Assets.at("javascripts/angular.min.js")"></script>
+        <script src="@routes.Assets.at("javascripts/angular-resource.js")"></script>
 
-}
+        <script src="@routes.Assets.at("javascripts/app.js")"></script>
+        <script src="@routes.Assets.at("javascripts/services.js")"></script>
+        <script src="@routes.Assets.at("javascripts/controllers.js")"></script>
+    </head>
+    <body>
+        <div ng-app= 'Capuchin'>
+            <h2>Applications</h2>
+            <div ng-controller="ApplicationController">
+                <ul class="unstyled">
+                    <li ng-init="rootFolders=Bob" ng-repeat="app in apps">
+                        <span class="app" >{{app.id}} - {{app.name}}</span>
+                    </li>
+                </ul>
+                Date format: <input ng-model="format">
+                Current time is: <span my-current-time="format"></span>
+            </div>
+        </div>
+    </body>
+</html>
