@@ -3,11 +3,30 @@
 # ~~~~
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET           /assets/*file                   controllers.Assets.at(path="/public", file)
 
 # Controllers
-GET     /application/all            controllers.ApplicationController.getAll()
-GET     /application/:id            controllers.ApplicationController.get(id: Guid)
-POST    /application                controllers.ApplicationController.post()
-PUT     /application/:id            controllers.ApplicationController.put(id: Guid)
-DELETE  /application/:id            controllers.ApplicationController.delete(id: Guid)
+GET           /application/all                controllers.ApplicationController.getAll()
+GET           /application/:id                controllers.ApplicationController.get(id: Guid)
+POST          /application                    controllers.ApplicationController.post()
+PUT           /application/:id                controllers.ApplicationController.put(id: Guid)
+DELETE        /application/:id                controllers.ApplicationController.delete(id: Guid)
+
+GET           /applicationinstance/all        controllers.ApplicationInstanceController.getAll()
+GET           /applicationinstance/:id        controllers.ApplicationInstanceController.get(id: Guid)
+POST          /applicationinstance            controllers.ApplicationInstanceController.post()
+PUT           /applicationinstance/:id        controllers.ApplicationInstanceController.put(id: Guid)
+DELETE        /applicationinstance/:id        controllers.ApplicationInstanceController.delete(id: Guid)
+
+GET           /applicationversion/all         controllers.ApplicationVersionController.getAll()
+GET           /applicationversion/:id         controllers.ApplicationVersionController.get(id: Guid)
+POST          /applicationversion             controllers.ApplicationVersionController.post()
+PUT           /applicationversion/:id         controllers.ApplicationVersionController.put(id: Guid)
+DELETE        /applicationversion/:id         controllers.ApplicationVersionController.delete(id: Guid)
+
+GET           /host/all                       controllers.HostController.getAll()
+GET           /host/:id                       controllers.HostController.get(id: Guid)
+POST          /host                           controllers.HostController.post()
+PUT           /host/:id                       controllers.HostController.put(id: Guid)
+DELETE        /host/:id                       controllers.HostController.delete(id: Guid)
+
