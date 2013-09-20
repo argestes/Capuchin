@@ -5,6 +5,7 @@ import play.api.libs.json.{Format, Json}
 
 case class ApplicationInstance(
   id: Option[Guid],
+  applicationId: Guid,
   applicationVersionId: Guid,
   hostId: Guid,
   data: String,
@@ -21,7 +22,7 @@ object ApplicationInstances extends BaseTable[ApplicationInstance]("ApplicationI
 
   def status = column[Int]("status")
 
-  def * = id.? ~ applicationVersionId ~ hostId ~ data ~ status <>(ApplicationInstance, ApplicationInstance.unapply _)
+  def * = id.? ~ applicationVersionId ~ applicationId ~ hostId ~ data ~ status <>(ApplicationInstance, ApplicationInstance.unapply _)
 
   def application = foreignKey("FK_ApplicationInstances_Applications", applicationId, Applications)(_.id)
 
